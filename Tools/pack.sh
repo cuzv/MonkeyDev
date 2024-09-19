@@ -53,6 +53,10 @@ function checkApp(){
 	rm -rf "${TARGET_APP_PATH}/PlugIns" || true
 	rm -rf "${TARGET_APP_PATH}/Watch" || true
 
+	# remove code sign folders
+	rm -rf "${TARGET_APP_PATH}/_CodeSignature" || true
+	rm -rf "${TARGET_APP_PATH}/SC_Info" || true
+
 	/usr/libexec/PlistBuddy -c 'Delete UISupportedDevices' "${TARGET_APP_PATH}/Info.plist" 2>/dev/null
 
 	VERIFY_RESULT=`export MONKEYDEV_CLASS_DUMP=${MONKEYDEV_CLASS_DUMP};MONKEYDEV_RESTORE_SYMBOL=${MONKEYDEV_RESTORE_SYMBOL};"$MONKEYPARSER" verify -t "${TARGET_APP_PATH}" -o "${SRCROOT}/${TARGET_NAME}"`

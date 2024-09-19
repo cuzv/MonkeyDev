@@ -300,15 +300,15 @@ function writeDictToSpecification(){ #args: filePath, content
 mkdir -p "$MonkeyDevPath" || \
 	panic $? "Failed to make directory: $MonkeyDevPath"
 
-branch="master"
+branch="re"
 
 if [[ "$1" ]]; then
 	branch="$1"
 fi
 
 #下载一些基础文件和模板文件
-downloadGithubTarball "https://codeload.github.com/AloneMonkey/MonkeyDev/tar.gz/$branch" "$MonkeyDevPath" "MonkeyDev base"
-downloadGithubTarball "https://codeload.github.com/AloneMonkey/MonkeyDev-Xcode-Templates/tar.gz/$branch" "$MonkeyDevPath/templates" "Xcode templates"
+downloadGithubTarball "https://codeload.github.com/cuzv/MonkeyDev/tar.gz/$branch" "$MonkeyDevPath" "MonkeyDev base"
+downloadGithubTarball "https://codeload.github.com/cuzv/MonkeyDev-Xcode-Templates/tar.gz/$branch" "$MonkeyDevPath/templates" "Xcode templates"
 
 #下载frida-ios-dump
 echo "Downloading frida-ios-dump from Github..."
@@ -343,35 +343,7 @@ addToFileIfMissing "$userBashProfileFile" "^(export)? *MonkeyDevPath=.*" "export
 addToFileIfMissing "$userBashProfileFile" "^(export)? *MonkeyDevDeviceIP=.*" "export MonkeyDevDeviceIP="
 addToFileIfMissing "$userBashProfileFile" "^(export)? *PATH=.*(\\\$MonkeyDevPath\\/bin|${MonkeyDevPath//\//\\/}\\/bin).*" "export PATH=$MonkeyDevPath/bin:\$PATH"
 
-#支持iphoneos command line tools
-iosSdkPlatformPath=`getSdkProperty iphoneos PlatformPath`
-macosSdkPlatformPath=`getSdkProperty macosx PlatformPath`
-
-specificationFile=$(cd $iosSdkPlatformPath/../../.. && pwd)/PlugIns/IDEiOSSupportCore.ideplugin/Contents/Resources/Embedded-Device.xcspec
-
-requireFile "$specificationFile" false
-
-#backup
-requireBackup "$specificationFile"
-
-hasPackageTypeForCommandLineTool=`doesFileContain "$specificationFile" 'com.apple.package-type.mach-o-executable'`
-hasProductTypeForCommandLineTool=`doesFileContain "$specificationFile" 'com.apple.product-type.tool'`
-
-macosxSDKSpecificationsPath=$macosSdkPlatformPath/Developer/Library/Xcode/Specifications
-packageTypesForMacOSXPath="$macosxSDKSpecificationsPath/MacOSX Package Types.xcspec"
-productTypesForMacOSXPath="$macosxSDKSpecificationsPath/MacOSX Product Types.xcspec"
-
-requireFile "$packageTypesForMacOSXPath" false
-requireFile "$productTypesForMacOSXPath" false
-
-if [[ $hasPackageTypeForCommandLineTool != "true" ]]; then
-	machoDict=`readXcodeSpecificationById "$packageTypesForMacOSXPath" "com.apple.package-type.mach-o-executable"`
-	writeDictToSpecification "$specificationFile" "$machoDict"
-fi
-
-if [[ $hasProductTypeForCommandLineTool != "true" ]]; then
-	toolDict=`readXcodeSpecificationById "$productTypesForMacOSXPath" "com.apple.product-type.tool"`
-	writeDictToSpecification "$specificationFile" "$toolDict"
-fi
-
-exit 0
+# 解决依赖问题
+git clone https://github.com/cuzv/libstdc-.git
+cd libstdc-
+bash ./install-xcode_11+.sh
