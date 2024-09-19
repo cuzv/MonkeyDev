@@ -342,8 +342,3 @@ userBashProfileFile=`determineUserBashProfileFile`
 addToFileIfMissing "$userBashProfileFile" "^(export)? *MonkeyDevPath=.*" "export MonkeyDevPath=$MonkeyDevPath"
 addToFileIfMissing "$userBashProfileFile" "^(export)? *MonkeyDevDeviceIP=.*" "export MonkeyDevDeviceIP="
 addToFileIfMissing "$userBashProfileFile" "^(export)? *PATH=.*(\\\$MonkeyDevPath\\/bin|${MonkeyDevPath//\//\\/}\\/bin).*" "export PATH=$MonkeyDevPath/bin:\$PATH"
-
-# 解决依赖问题
-git clone https://github.com/cuzv/libstdc-.git
-cd libstdc-
-bash ./install-xcode_11+.sh
